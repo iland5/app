@@ -1,0 +1,201 @@
+   <!DOCTYPE html>
+
+   <html>
+   <head>
+   <title> KeyruStar </title>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+   <meta name="format-detection" content="telephone=no">
+   <meta name="msapplication-tap-highlight" content="no">
+   <meta name="theme-color" content="#4e8ef7">
+  
+ 
+ <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+
+   </head>
+   <body onload="init();" class="container" style="min-width: 85%">
+   <br>
+    <h4 style="margin-left: -64px;">Find the star you look like:</h4>
+<br>
+    <p>
+      <img src="https://www.myjob.mu/Logos/Keyrus-Mauritius-Ltd-9701.gif" alt="Smiley face" style="position: absolute;
+    right: 40px; top: -35px;">
+     <button onclick="snapshot();" class="btn btn-success" >Take Snapshot</button> 
+	 
+ 
+
+	
+   </p>
+   <div class="row" style="max-width: 100%"> 
+     <video class="col s6" onclick="snapshot(this);" width=400 height=400 id="video" autoplay="true"></video>
+     <div class="col s6">
+     <p>
+        <canvas  id="myCanvas" width="500" height="380"></canvas>
+     
+     </div>
+    </div>
+
+    
+      <div class="row" style="max-width: 100%">  
+        <canvas id="canvas1" height="500" width="350" class="col-md-4" style="background-color:white;"></canvas>
+        <canvas id="canvas2" height="500" width="350"  class="col-md-4" style="background-color:white;"></canvas>
+        <canvas id="canvas3" height="500" width="350"  class="col-md-4" style="background-color:white;"></canvas>
+      </div>
+	  <table align="center">
+	  <tr>
+	  <td>
+	  <h5 class="star1" align="center"></h5> 
+	  </td>
+	  <td>
+	  <h5 class="star2" align="center"></h5> 
+	  </td>
+	  <td>
+	  <h5 class="star3" align="center"></h5> 
+	  </td>
+	  </tr>
+	  
+	  <tr>
+	  <td>
+	  <h6 class="score1" align="center"></h6> 
+	  </td>
+	  <td>
+	  <h6 class="score2" align="center"></h6> 
+	  </td> 
+	  <td>
+	  <h6 class="score3" align="center"></h6> 
+	  </td>
+	  </tr>
+	  </table>
+    </body>
+        
+    <script>
+
+        //--------------------
+        // GET USER MEDIA CODE
+        //--------------------
+        navigator.getUserMedia = ( navigator.getUserMedia ||
+         navigator.webkitGetUserMedia ||
+         navigator.mozGetUserMedia ||
+         navigator.msGetUserMedia);
+
+		 
+        var video;
+        var webcamStream;
+
+        function startWebcam() {
+          if (navigator.getUserMedia) {
+           navigator.getUserMedia (
+
+                // constraints
+                {
+                 video: true,
+                 audio: false
+               },
+
+                // successCallback
+                function(localMediaStream) {
+                  video = document.querySelector('video');
+                  video.src = window.URL.createObjectURL(localMediaStream);
+                  webcamStream = localMediaStream;
+                },
+
+                // errorCallback
+                function(err) {
+                 console.log("The following error occured: " + err);
+               }
+               );
+         } else {
+           console.log("getUserMedia not supported");
+         }  
+       }
+
+       function stopWebcam() {
+        webcamStream.stop();
+      }
+        
+		// TAKE A SNAPSHOT CODE
+        var canvas, ctx;
+
+        function init() {
+          // Get the canvas and obtain a context for
+          // drawing in it
+          canvas = document.getElementById("myCanvas");
+          ctx = canvas.getContext('2d');
+          startWebcam();
+        }
+
+        function callOtherDomain(pngUrl1){
+          pngUrl="";
+          pngUrl=pngUrl1.substring(22);
+          $(document).ready(function() {
+            $.ajax({
+              url: "http://35.153.163.107:5000/face_reco/",
+              type: 'PUT',
+              data: {"text": pngUrl}
+            }).then(function(data) {
+			//console.log()
+			 try{
+             $('.star1').text(data["id_0"]["name"]);
+			 $('.score1').text("Resemblance: "+data["id_0"]["score"]+"%");
+			 $('.star2').text(data["id_1"]["name"]);
+			 $('.score2').text("Resemblance: "+data["id_1"]["score"]+"%");
+			 $('.star3').text(data["id_2"]["name"]);
+			 $('.score3').text("Resemblance: "+data["id_2"]["score"]+"%");
+			 
+             var ctx1 = document.querySelector('#canvas1').getContext('2d');
+             var img1 = new Image();
+             img1.onload = function() {
+			 ctx1.fillStyle="#FFFFFF";
+			 ctx1.fillRect(40,10,350,500);
+             ctx1.drawImage(img1, 40, 10);
+			 
+			  
+            }
+            var ctx2 = document.querySelector('#canvas2').getContext('2d');
+            var img2 = new Image();
+            img2.onload = function() {
+			ctx2.fillStyle="#FFFFFF";
+			 ctx2.fillRect(40,10,350,500);
+              ctx2.drawImage(img2, 40, 10);
+            }
+            var ctx3 = document.querySelector('#canvas3').getContext('2d');
+            var img3 = new Image();
+            img3.onload = function() {
+			ctx3.fillStyle="#FFFFFF";
+			ctx3.fillRect(40,10,350,500);
+            ctx3.drawImage(img3, 40, 10);
+            }
+            img1.src = 'data:image/png;base64,' + data["id_0"]["image"];
+            img2.src = 'data:image/png;base64,' + data["id_1"]["image"];
+            img3.src = 'data:image/png;base64,' + data["id_2"]["image"];
+			}
+			catch(error){
+			window.alert("No face detected, please try again.");
+			}
+          });
+          
+		  });
+		  
+        }
+        function snapshot() {
+           // Draws current image from the video element into the canvas
+		   ctx.drawImage(video, 0,0, canvas.width, canvas.height);
+           pngUrl = canvas.toDataURL();
+           console.log("length = " +pngUrl);
+           callOtherDomain(pngUrl);		
+
+         }
+		 
+		 
+        function upload() {
+		console.log(document.getElementById("upload").value);
+		}
+
+
+
+       </script>
+       </html>
