@@ -133,7 +133,7 @@
           pngUrl=pngUrl1.substring(22);
           $(document).ready(function() {
             $.ajax({
-              url: "http://35.153.163.107:5000/face_reco/",
+              url: "https://35.153.163.107:5000/face_reco/",
               type: 'PUT',
               data: {"text": pngUrl}
             }).then(function(data) {
